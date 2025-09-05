@@ -1,0 +1,88 @@
+// Substance Painter menu in the toolbar.
+// We track is the engine has been loaded and enable/diable the Shotgun icon
+// accordingly.
+
+// __author__ = "Diego Garcia Huerta"
+// __email__ = "diegogh2000@gmail.com"
+
+
+import AlgWidgets.Style 1.0
+import QtQuick 2.7
+import QtQuick.Controls 
+
+Button {
+  id: control
+  antialiasing: true
+  height: 32
+  width: 32
+  text: "Open Shotgun Menu"
+  property var clickedPosition: null
+  property bool isEngineLoaded: false
+  property bool isHovered: false
+
+  enabled: control.isEngineLoaded
+
+  hoverEnabled: true           // para que 'hovered' funcione en todas las plataformas
+
+  background: Rectangle {
+      // en Controls 2 el 'background' tiene acceso a 'control'
+      implicitWidth: control.implicitWidth
+      implicitHeight: control.implicitHeight
+      color: control.hovered ? "#262626" : "transparent"
+  }
+
+  Image {
+    id: controlImage
+    anchors.fill: parent
+    antialiasing: true
+    anchors.margins: 8
+    fillMode:Image.PreserveAspectFit
+    source: control.isHovered ? "icons/sg_hover.png" : "icons/sg_idle.png"
+    mipmap: true
+    opacity: control.enabled ?
+      1.0:
+      0.3
+    sourceSize.width: control.width
+    sourceSize.height: control.height
+  }
+
+  MouseArea {
+    hoverEnabled: true
+    anchors.fill: control
+
+      onEntered: {
+        control.isHovered = true
+      }
+
+
+      onExited: {
+        control.isHovered = false
+      }
+
+      onClicked: {
+        if (control.isEngineLoaded)
+        {
+          control.clickedPosition = mapToGlobal(mouse.x, mouse.y);
+          control.clicked()
+        }
+        else{
+          alg.log.warn("SubstancePainter Shotgun Engine is being loaded. Please wait...");
+        }
+      }
+  }
+
+  Rectangle {
+    id: autoLinkButton
+    height: 5
+    width: height
+    x: 2
+    y: 2
+
+    radius: width
+
+    visible: !control.isEngineLoaded
+    color: !control.isEngineLoaded ? "#9C2FB2" : "#EF4E35"
+
+  }
+
+}
