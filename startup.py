@@ -282,6 +282,9 @@ class SubstancePainterLauncher(SoftwareLauncher):
         required_env["SGTK_ENGINE"] = self.engine_name
         required_env["SGTK_CONTEXT"] = sgtk.context.serialize(self.context)
 
+        # Added env var for color config
+        required_env["OCIO"] = r"C:\Program Files\Adobe\Adobe Substance 3D Painter\resources\ocio\aces_2.0\config.ocio"
+
         # ensure scripts are up to date on the substance painter side
 
         # Platform-specific plug-in paths
@@ -305,6 +308,10 @@ class SubstancePainterLauncher(SoftwareLauncher):
             )
 
         ensure_scripts_up_to_date(resources_plugins_path, user_scripts_path)
+
+        self.logger.debug("###############################################")
+        self.logger.debug(required_env)
+        self.logger.debug("###############################################")
 
         # args = '&SGTK_SUBSTANCEPAINTER_ENGINE_STARTUP=%s;SGTK_SUBSTANCEPAINTER_ENGINE_PYTHON=%s' % (startup_path, sys.executable)
         return LaunchInformation(exec_path, args, required_env)

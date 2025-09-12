@@ -62,7 +62,9 @@ class Client(QtCore.QObject):
         # I cannot wait for python3 concurrency!
         # reference: https://stackoverflow.com/questions/9523370/adding-attributes-to-instance-methods-in-python
         def send_and_receive(self, command, **kwargs):
+            # self.log_debug("#######################################################################")
             # self.log_debug("send_and_receive: message %s" % command)
+            # self.log_debug("#######################################################################")
 
             # exit the loop if timeout happens
             timeout_timer = QtCore.QTimer(parent=QtCore.QCoreApplication.instance())
@@ -215,8 +217,12 @@ class EngineClient(Client):
     #     result = self.send_and_receive("NEEDS_SAVING", path=path)
     #     return result
 
-    def create_project(self, usd_path):
-        self.send_and_receive("CREATE_PROJECT", usd_path=usd_path)
+    def create_project(self, usd_path, template_spt, settings_spt):
+        self.send_and_receive(
+            "CREATE_PROJECT",
+            usd_path=usd_path,
+            template_spt=template_spt,
+            settings_spt=settings_spt)
 
     def open_project(self, path):
         path = self.send_and_receive("OPEN_PROJECT", path=path)

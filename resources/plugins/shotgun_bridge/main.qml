@@ -323,6 +323,41 @@ PainterPlugin
 
   // ADDED ///////////////////
 
+  function sanitizeProjectSettings(ps)
+  {
+    if (!ps) return undefined;
+    var out = {};
+
+    // normalMapFormat
+    if (ps.normalMapFormat === "OpenGL" || ps.normalMapFormat === "DirectX")
+      out.normalMapFormat = ps.normalMapFormat;
+
+    // tangentSpaceMode
+    if (ps.tangentSpaceMode === "perVertex" || ps.tangentSpaceMode === "perFragment")
+      out.tangentSpaceMode = ps.tangentSpaceMode;
+
+    // projectWorkflow
+    var wf = ps.projectWorkflow;
+    if (wf === "Default" || wf === "TextureSetPerUVTile" || wf === "UVTile")
+      out.projectWorkflow = wf;
+
+    // resolución (power of two)
+    if (typeof ps.resolution === "number" && ps.resolution > 0)
+      out.resolution = ps.resolution|0;
+
+    // splitMaterialsByUDIM (deprecated): si llega y no hay workflow, mapea
+    if (ps.splitMaterialsByUDIM === true && !out.projectWorkflow)
+      out.projectWorkflow = "TextureSetPerUVTile";
+
+    // exportUrl
+    if (ps.exportUrl)
+      out.exportUrl = alg.fileIO.localFileToUrl(ps.exportUrl);
+
+    alg.log.error(out)
+
+    return out;
+  }
+
   function createProject(data)
   {    
     try
@@ -333,7 +368,13 @@ PainterPlugin
       }
 
       // Creamos el proyecto
-      alg.project.create(alg.fileIO.localFileToUrl(data.usd_path), [], "", {})
+      //alg.project.create(alg.fileIO.localFileToUrl(data.usd_path), [], "", {})
+      
+      var mesh_path   = alg.fileIO.localFileToUrl(data.usd_path)
+      //var template    = alg.fileIO.localFileToUrl(data.template_spt) // Avoid template, it overrides OCIO env var...
+      var settings    = sanitizeProjectSettings(data.settings_spt)
+
+      alg.project.create(mesh_path, [], "", settings)
     }
     catch (err)
     {
