@@ -102,6 +102,7 @@ Item {
       alg.log.error(qsTr("Unexpected error while sending \"%1\" message id: %2").arg(message_id).arg(err.message));
     }
   }
+  
 
   WebSocketServer {
     id: server
@@ -156,6 +157,7 @@ Item {
           log_debug("Message received was ignored: " + message)        
         }
         root.jsonMessageReceived(command, jsonData);
+        alg.log.info(command + " --> " + result) // ADDED
       })
     }
 

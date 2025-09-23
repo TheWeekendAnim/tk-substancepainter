@@ -450,6 +450,7 @@ class SubstancePainterEngine(Engine):
 
         # New version system was introduced in version 2020.1, that became
         # version 6.1.0, so we need to do some magic to normalize versions.
+        
         # https://docs.substance3d.com/spdoc/version-2020-1-6-1-0-194216357.html
         painter_version = to_new_version_system(painter_version_str)
         painter_min_supported_version = to_new_version_system(MINIMUM_SUPPORTED_VERSION)

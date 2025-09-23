@@ -28,7 +28,7 @@ PainterPlugin
     if (data.hasOwnProperty("message"))
         message = data.message;
 
-    alg.log.info("Shotgun engine | " + message.toString());
+    alg.log.info("Shotgun engine | " + message.toString()); 
   }
  
   function log_warning(data)
@@ -287,6 +287,7 @@ PainterPlugin
       if (projectOpened)
       {
         var path = alg.fileIO.urlToLocalFile(alg.project.url());
+        alg.log.info(path)
         return path
       }
       else
@@ -353,8 +354,6 @@ PainterPlugin
     if (ps.exportUrl)
       out.exportUrl = alg.fileIO.localFileToUrl(ps.exportUrl);
 
-    alg.log.error(out)
-
     return out;
   }
 
@@ -367,9 +366,7 @@ PainterPlugin
         alg.project.close();
       }
 
-      // Creamos el proyecto
-      //alg.project.create(alg.fileIO.localFileToUrl(data.usd_path), [], "", {})
-      
+      // Creamos el proyecto      
       var mesh_path   = alg.fileIO.localFileToUrl(data.usd_path)
       //var template    = alg.fileIO.localFileToUrl(data.template_spt) // Avoid template, it overrides OCIO env var...
       var settings    = sanitizeProjectSettings(data.settings_spt)
@@ -391,7 +388,9 @@ PainterPlugin
     try
     {
       var url = alg.fileIO.localFileToUrl(data.path);
+      log_info(url)
       alg.project.save(url, alg.project.SaveMode.Full);
+      log_info("Project saved!!!!")
     }
     catch (err)
     {
@@ -529,7 +528,10 @@ PainterPlugin
   function exportDocumentMaps(data)
   {
     server.sendCommand("EXPORT_STARTED", {});
-    var result = alg.mapexport.exportDocumentMaps(data.preset, data.destination, data.format, data.mapInfo)
+    var export_preset = alg.mapexport.getProjectExportPreset();
+    var export_options = alg.mapexport.getProjectExportOptions();
+    var result = alg.mapexport.exportDocumentMaps(export_preset, data.destination, export_options.fileFormat) //, data.mapInfo)
+    //var result = alg.mapexport.exportDocumentMaps(data.preset, data.destination, data.format, data.mapInfo)
     server.sendCommand("EXPORT_FINISHED", {map_infos:result});
     return true;
   }

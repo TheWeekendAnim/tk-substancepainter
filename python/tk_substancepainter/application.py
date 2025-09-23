@@ -62,9 +62,8 @@ class Client(QtCore.QObject):
         # I cannot wait for python3 concurrency!
         # reference: https://stackoverflow.com/questions/9523370/adding-attributes-to-instance-methods-in-python
         def send_and_receive(self, command, **kwargs):
-            # self.log_debug("#######################################################################")
-            # self.log_debug("send_and_receive: message %s" % command)
-            # self.log_debug("#######################################################################")
+            self.log_debug("#######################################################################")
+            self.log_debug("send_and_receive: message %s" % command)
 
             # exit the loop if timeout happens
             timeout_timer = QtCore.QTimer(parent=QtCore.QCoreApplication.instance())
@@ -75,16 +74,19 @@ class Client(QtCore.QObject):
 
             def await_for_response(result):
                 self.send_and_receive.data = result
-                # self.log_debug("exiting the loop: result %s" % result)
+                self.log_debug("exiting the loop: result %s" % result)
                 loop.quit()
 
-            # self.log_debug("in the loop...")
+            self.log_debug("in the loop...")
             self.send_text_message(command, callback=await_for_response, **kwargs)
 
             timeout_timer.timeout.connect(loop.quit)
             timeout_timer.start(5 * 1000.0)
 
             loop.exec_()
+
+            self.log_debug("received: message %s" % self.send_and_receive.data)
+            self.log_debug("##########################################################")
 
             return self.send_and_receive.data
 
@@ -131,24 +133,24 @@ class Client(QtCore.QObject):
             time.sleep(self.wait_period)
 
     def on_text_message_received(self, message):
-        # self.log_debug("client: on_text_message_received: %s" % (message))
+        self.log_debug("client: on_text_message_received: %s" % (message))
         jsonData = json.loads(message)
         message_id = jsonData.get("id")
 
         # requesting data
         if "method" in jsonData:
-            # self.log_debug("client: request detected: %s" % (message))
+            self.log_debug("client: request detected: %s" % (message))
             method = jsonData.get("method")
             params = jsonData.get("params")
             self.engine.process_request(method, **params)
 
         if "result" in jsonData:
-            # self.log_debug("client: result detected: %s" % (message))
+            self.log_debug("client: result detected: %s" % (message))
             if message_id in self.callbacks:
-                # self.log_debug(
-                #     "client: requesting callback result for message: %s"
-                #     % message_id
-                # )
+                self.log_debug(
+                    "client: requesting callback result for message: %s"
+                    % message_id
+                )
                 result = jsonData.get("result")
                 self.callbacks[message_id](result)
                 del self.callbacks[message_id]
@@ -158,15 +160,15 @@ class Client(QtCore.QObject):
             QAbstractSocket.SocketState.ClosingState,
             QAbstractSocket.SocketState.UnconnectedState,
         ):
-            # self.log_debug(
-            #     "client: is not connected!, ignoring message: %s" % message_id
-            # )
+            self.log_debug(
+                "client: is not connected!, ignoring message: %s" % message_id
+            )
             return
 
         # wait until connected
         while self.client.state() == QAbstractSocket.SocketState.ConnectingState:
             QCoreApplication.processEvents()
-            # self.log_debug("client: waiting state: %s" % self.client.state())
+            self.log_debug("client: waiting state: %s" % self.client.state())
             time.sleep(self.wait_period)
             pass
 
@@ -180,7 +182,7 @@ class Client(QtCore.QObject):
             {"jsonrpc": "2.0", "method": command, "params": kwargs, "id": message_id,}
         )
 
-        # self.log_debug("client: send_message: %s" % message)
+        self.log_debug("client: send_message: %s" % message)
         self.client.sendTextMessage(message)
         return message_id
 
@@ -279,7 +281,8 @@ class EngineClient(Client):
         result = self.send_and_receive("GET_MAP_EXPORT_INFORMATION")
         return result
 
-    def export_document_maps(self, preset, destination, format, mapInfo):
+    # def export_document_maps(self, preset, destination, format, mapInfo):
+    def export_document_maps(self, destination):
         # This is a trick to wait until the async process of
         # exporting textures finishes.
         self.__export_results = None
@@ -292,11 +295,12 @@ class EngineClient(Client):
         )
 
         self.log_debug("Starting map export...")
-        self.send_and_receive("EXPORT_DOCUMENT_MAPS",
-                              preset=preset,
-                              destination=destination,
-                              format=format,
-                              mapInfo=mapInfo)
+        self.send_and_receive("EXPORT_DOCUMENT_MAPS", destination=destination)
+        # self.send_and_receive("EXPORT_DOCUMENT_MAPS",
+        #                       preset=preset,
+        #                       destination=destination,
+        #                       format=format,
+        #                       mapInfo=mapInfo)
 
         while self.__export_results is None:
             self.log_debug("Waiting for maps to be exported ...")

@@ -242,7 +242,9 @@ class SubstancePainterLauncher(SoftwareLauncher):
         """
         required_env = {}
 
-        resources_plugins_path = os.path.join(self.disk_location, "resources", "plugins")
+        resources_path = os.path.join(self.disk_location, "resources")
+        resources_plugins_path = os.path.join(resources_path, "plugins")
+        resources_presets_path = os.path.join(resources_path, "exportPresets")
 
         # Run the engine's init.py file when SubstancePainter starts up
         # TODO, maybe start engine here
@@ -301,6 +303,7 @@ class SubstancePainterLauncher(SoftwareLauncher):
             )
 
             user_scripts_path = path_buffer.value + r"\Adobe\Adobe Substance 3D Painter\javascript\plugins"
+            user_presets_path = path_buffer.value + r"\Adobe\Adobe Substance 3D Painter\assets\export-presets"
 
         else:
             user_scripts_path = os.path.expanduser(
@@ -308,6 +311,7 @@ class SubstancePainterLauncher(SoftwareLauncher):
             )
 
         ensure_scripts_up_to_date(resources_plugins_path, user_scripts_path)
+        ensure_scripts_up_to_date(resources_presets_path, user_presets_path)
 
         self.logger.debug("###############################################")
         self.logger.debug(required_env)
