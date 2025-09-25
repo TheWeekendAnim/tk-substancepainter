@@ -280,6 +280,10 @@ class EngineClient(Client):
     def get_map_export_information(self):
         result = self.send_and_receive("GET_MAP_EXPORT_INFORMATION")
         return result
+    
+    def get_mesh_url(self):
+        result = self.send_and_receive("GET_MESH_URL")
+        return result
 
     # def export_document_maps(self, preset, destination, format, mapInfo):
     def export_document_maps(self, destination):

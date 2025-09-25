@@ -525,6 +525,11 @@ PainterPlugin
     return alg.mapexport.getPathsExportDocumentMaps(export_preset, export_path, export_options.fileFormat)
   }
 
+  function getMeshUrl(data)
+  {
+    return alg.mapexport.lastImportedMeshUrl();
+  }
+
   function exportDocumentMaps(data)
   {
     server.sendCommand("EXPORT_STARTED", {});
@@ -581,6 +586,7 @@ PainterPlugin
       registerCallback("GET_RESOURCE_INFO", getResourceInfo);
       registerCallback("GET_PROJECT_EXPORT_PATH", getProjectExportPath);
       registerCallback("GET_MAP_EXPORT_INFORMATION", getMapExportInformation);
+      registerCallback("GET_MESH_URL", getMeshUrl); // ADDED
       registerCallback("EXPORT_DOCUMENT_MAPS", exportDocumentMaps);
       registerCallback("UPDATE_DOCUMENT_RESOURCES", updateDocumentResources);
       registerCallback("DOCUMENT_RESOURCES", documentResources);
